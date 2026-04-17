@@ -1,6 +1,6 @@
 # ================= BACKEND FIX (IMPORTANT) =================
 import matplotlib
-matplotlib.use('Agg')  # prevents Tkinter errors
+matplotlib.use('Agg')
 
 # ================= IMPORTS =================
 from src.data_preprocessing import load_data
@@ -13,6 +13,7 @@ import seaborn as sns
 import pandas as pd
 import os
 import shutil
+import numpy as np   # ✅ ADDED
 
 # ================= STYLE =================
 sns.set_theme(style="whitegrid")
@@ -38,6 +39,12 @@ df = create_features(df)
 # ================= MODEL =================
 model, preds, actual, feature_names = train_model(df)
 
+# ================= NEW: MASE CALCULATION =================
+naive = np.repeat(actual.iloc[0], len(actual))
+mase = np.mean(np.abs(actual.values - preds) / np.abs(actual.values - naive + 1e-6))
+
+print(f"📊 MASE (Main) : {round(mase,3)}")
+
 # ================= INVENTORY =================
 inv = inventory_policy(preds)
 
@@ -46,16 +53,17 @@ print(f"Safety Stock   : {inv['Safety Stock']}")
 print(f"Reorder Point  : {inv['Reorder Point']}")
 print(f"Order Quantity : {inv['Order Quantity']}")
 
-# =========================================================
-# GRAPH 1 — FORECAST VS ACTUAL
-# =========================================================
-plt.figure(figsize=(12,5))
-
+# ================= SAFE LENGTH FIX =================
 n = min(40, len(actual), len(preds))
 
 actual_plot = actual.values[:n]
 pred_plot = preds[:n]
 x = range(n)
+
+# =========================================================
+# GRAPH 1 — FORECAST VS ACTUAL
+# =========================================================
+plt.figure(figsize=(12,5))
 
 plt.plot(x, actual_plot, color="#2E86C1", linewidth=3, label="Actual")
 plt.plot(x, pred_plot, color="#E74C3C", linestyle="--", linewidth=3, label="Forecast")
@@ -73,7 +81,7 @@ plt.savefig("outputs/forecast.png")
 plt.close()
 
 # =========================================================
-# GRAPH 2 — TREND (WITH PEAK INDICATORS)
+# GRAPH 2 — TREND
 # =========================================================
 trend = df.set_index("date")["qty_sold"].rolling(7).mean()
 
@@ -81,13 +89,10 @@ plt.figure(figsize=(12,5))
 
 plt.plot(trend, color="#1ABC9C", linewidth=3)
 
-# Highlight peak & low
 plt.scatter(trend.idxmax(), trend.max(), color="red", s=80, label="Peak")
 plt.scatter(trend.idxmin(), trend.min(), color="blue", s=80, label="Low")
 
 plt.title("Weekly Sales Trend")
-plt.xlabel("Date")
-plt.ylabel("Sales")
 plt.legend()
 plt.grid(alpha=0.3)
 
@@ -111,7 +116,7 @@ plt.savefig("outputs/distribution.png")
 plt.close()
 
 # =========================================================
-# GRAPH 4 — RESIDUALS WITH INDICATORS
+# GRAPH 4 — RESIDUALS
 # =========================================================
 errors = actual_plot - pred_plot
 
@@ -119,15 +124,12 @@ plt.figure(figsize=(10,4))
 
 plt.plot(errors, color="#8E44AD", linewidth=3, label="Error")
 
-# Zero line
 plt.axhline(0, linestyle="--", color="black", linewidth=1.5)
 
-# Mean error
 mean_error = errors.mean()
 plt.axhline(mean_error, linestyle=":", color="orange", linewidth=2,
             label=f"Mean Error ({mean_error:.0f})")
 
-# Highlight extreme errors
 threshold = errors.std() * 1.5
 extreme_idx = abs(errors) > threshold
 
@@ -138,7 +140,6 @@ plt.scatter(
     s=60
 )
 
-# Fill zones
 plt.fill_between(range(len(errors)), errors, 0,
                  where=(errors > 0),
                  color="green", alpha=0.2)
@@ -148,8 +149,6 @@ plt.fill_between(range(len(errors)), errors, 0,
                  color="red", alpha=0.2)
 
 plt.title("Prediction Error Analysis")
-plt.xlabel("Time")
-plt.ylabel("Error")
 plt.legend()
 plt.grid(alpha=0.3)
 
@@ -158,7 +157,7 @@ plt.savefig("outputs/residuals.png")
 plt.close()
 
 # =========================================================
-# GRAPH 5 — FEATURE IMPORTANCE (FIXED)
+# GRAPH 5 — FEATURE IMPORTANCE
 # =========================================================
 print("\n[INFO] Generating Feature Importance...")
 
@@ -178,11 +177,10 @@ sns.barplot(
     legend=False
 )
 
-plt.title("Key Drivers of Sales Prediction")
-
-# Add values
 for i, v in enumerate(feat_df["Importance"]):
     plt.text(v, i, f"{v:.3f}", va='center')
+
+plt.title("Key Drivers of Sales Prediction")
 
 plt.tight_layout()
 plt.savefig("outputs/feature_importance.png")
