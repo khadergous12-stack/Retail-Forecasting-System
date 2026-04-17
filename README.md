@@ -1,6 +1,6 @@
 # 📊 Retail Forecasting System
 
-A complete end-to-end machine learning project that predicts retail product demand and optimizes inventory decisions using data-driven insights. This system integrates forecasting, visualization, and automated reporting into a single interactive dashboard.
+A complete end-to-end machine learning project that predicts retail product demand and optimizes inventory decisions using data-driven insights. This system integrates forecasting, visualization, API access, and automated reporting into a single unified solution.
 
 ---
 
@@ -8,7 +8,7 @@ A complete end-to-end machine learning project that predicts retail product dema
 
 In retail businesses, incorrect demand prediction can lead to stock shortages or excess inventory. This project solves that problem by building a predictive system that forecasts future sales and converts those predictions into actionable inventory decisions such as safety stock, reorder point, and order quantity.
 
-The system also provides visual insights and generates structured reports to support business decision-making.
+The system provides both an interactive dashboard and API endpoints, making it suitable for real-world integration scenarios.
 
 ---
 
@@ -17,6 +17,7 @@ The system also provides visual insights and generates structured reports to sup
 - Predict future product demand using historical sales data  
 - Optimize inventory to avoid stockouts and overstocking  
 - Visualize trends, patterns, and model performance  
+- Provide API-based access for integration  
 - Generate downloadable reports for business use  
 
 ---
@@ -28,6 +29,7 @@ The system also provides visual insights and generates structured reports to sup
 - **Matplotlib, Seaborn** (Visualization)  
 - **Scikit-learn (Random Forest)** (Machine Learning)  
 - **Streamlit** (Interactive Dashboard)  
+- **FastAPI** (Backend API)  
 - **ReportLab** (PDF Report Generation)  
 
 ---
@@ -48,7 +50,8 @@ Retail-Forecasting-System/
 │   ├── model.py
 │   └── inventory.py
 │
-├── app.py
+├── app.py        # Streamlit Dashboard
+├── api.py        # FastAPI Backend
 ├── requirements.txt
 └── README.md
 ```
@@ -61,10 +64,11 @@ Retail-Forecasting-System/
 2. Feature Engineering – Create lag features, rolling averages, and date features  
 3. Model Training – Train Random Forest model for prediction  
 4. Prediction – Generate future demand values  
-5. Evaluation – Calculate MAE and RMSE  
+5. Evaluation – Calculate MAE, RMSE, and MASE  
 6. Inventory Optimization – Compute safety stock, reorder point, and order quantity  
 7. Visualization – Display insights through graphs  
-8. Report Generation – Generate downloadable PDF report  
+8. API Exposure – Provide endpoints for prediction and inventory  
+9. Report Generation – Generate downloadable PDF report  
 
 ---
 
@@ -82,6 +86,19 @@ Retail-Forecasting-System/
 
 ---
 
+## 🌐 API Endpoints
+
+The project also exposes REST APIs using FastAPI:
+
+- `/` → Health check  
+- `/forecast` → Returns sample forecast values  
+- `/inventory` → Returns inventory recommendations  
+- `/metrics` → Returns MAE and RMSE  
+
+These endpoints allow integration with external systems or applications.
+
+---
+
 ## 📄 Report Generation
 
 The system includes a PDF download feature that provides:
@@ -96,25 +113,35 @@ This report helps in real-world business decision-making.
 
 ---
 
+## 🧪 Virtual Simulation
+
+This project simulates real-world retail operations using historical datasets instead of live production data.
+
+- Seasonal trends are captured using time-based features  
+- Demand variability is modeled using lag and rolling features  
+- Inventory decisions are derived using predicted demand and lead-time assumptions  
+
+This simulation approach allows testing and validation of forecasting and inventory strategies in a controlled environment.
+
+---
+
 ## ▶️ How to Run
 
-1. Clone the repository:
-
-```bash
-git clone https://github.com/your-username/Retail-Forecasting-System.git
-cd Retail-Forecasting-System
-```
-
-2. Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-3. Run the application:
+### Run Dashboard
 
 ```bash
 streamlit run app.py
+```
+
+### Run API
+
+```bash
+uvicorn api:app --reload
+```
+
+Open:
+```
+http://127.0.0.1:8000/docs
 ```
 
 ---
@@ -125,6 +152,7 @@ streamlit run app.py
 - Accurate demand predictions  
 - Inventory recommendations  
 - Downloadable PDF report  
+- API-based access to predictions  
 
 ---
 
@@ -154,4 +182,4 @@ Khader Gouse
 
 ## ⭐ Conclusion
 
-This project demonstrates how machine learning can be applied to real-world retail problems by combining forecasting, analytics, and reporting into one unified system for smarter inventory management.
+This project demonstrates how machine learning can be applied to real-world retail problems by combining forecasting, analytics, API integration, and reporting into one unified system for smarter inventory management.
